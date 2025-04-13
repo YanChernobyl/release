@@ -1,4 +1,37 @@
-import random 
+from pygame import*
+
+pygame.init()
+
+
+
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set.caption("Екран Опису")
+
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = #001F66
+HOVER_BLUE = #0036B1
+
+
+title_font = pygame.font.SysFont(name: "Courier New", size:65)
+desc_font = pygame.font.SysFont(name: "Courier New", size:35)
+button_font = pygame.font.SysFont(name: "Courier New", size:41)
+
+
+title_text = title_font.render(text: "Калькулятор Моделі А412ОМ", antialias True, WHITE)
+desc_text = desc_font.render(text:"Рахуй Числа!" antialias:True, WHITE)
+
+
+button_text = button_font.render(text:"")
+
+first_screen=True
+while first_screen:
+    screen.fill(BLACK)
+
+    screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 150))
+    screen.blit(desc_text, (WIDTH // 2 - desc_text.get_width() // 2, 250));;;
 
 def show_menu():
     print("\n*** Калькулятор Моделі А412ОМ ***")
@@ -15,7 +48,9 @@ def normal_calculator():
         result = eval(expr)
         print(f"Результат: {result}")
     except ZeroDivisionError:
-        print("Некоректне Введення")
+        print("Помилка ділення!")
+    except Exception as e:
+        print(f"Помилка: {type(e).__name__}")
 
 def generate_problem():
     a = random.randint(1, 20)
@@ -39,7 +74,7 @@ def math_trainer():
     try:
         user_answer = float(input("Ваша Відповідь: "))
         if abs(user_answer - correct_answer) < 0.01:
-            print("Правильньно!")
+            print("Правильно!")
         else:
             print(f"Невірно. Правильна відповідь: {correct_answer}")
     except:
@@ -60,7 +95,7 @@ def guess_game():
             elif guess > secret:
                 print("Моє число менше!")
             else:
-                print(f"Победа! Угадав за {attempts} попиток!")
+                print(f"Победа! Угадав за {attempts} спроб!")
                 break
         except:
             print("Вводи ціли числа!")
@@ -85,5 +120,6 @@ def main():
         else:
             print("Незрозумілий вибір. Спробуй ще раз")
 
-if __name__ == "__name__":
+if __name__ == "_main__":
     main()
+
