@@ -1,125 +1,109 @@
-from pygame import*
+import sys
+import random
 
-pygame.init()
+from PyQt6.QtWidgets import (
+    QApplication, QWidget, QLabel, QPushButton, QVBoxLayout,
+    QInputDialog, QMessageBox
+)
+from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt
 
+class CalculatorApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Калькулятор Моделі А412ОМ")
+        self.setFixedSize(600, 400)
+        self.init_ui()
 
+    def init_ui(self):
+        title = QLabel("Калькулятор Моделі А412ОМ")
+        title.setFont(QFont("Courier New", 28, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set.caption("Екран Опису")
+        desc = QLabel("Рахуй Числа!")
+        desc.setFont(QFont("Courier New", 18))
+        desc.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        btn_calc = QPushButton("Звичайні Обчислення")
+        btn_calc.clicked.connect(self.normal_calculator)
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-BLUE = #001F66
-HOVER_BLUE = #0036B1
+        btn_task = QPushButton("Випадкова Задача")
+        btn_task.clicked.connect(self.math_trainer)
 
+        btn_guess = QPushButton("Вгадай Число")
+        btn_guess.clicked.connect(self.guess_game)
 
-title_font = pygame.font.SysFont(name: "Courier New", size:65)
-desc_font = pygame.font.SysFont(name: "Courier New", size:35)
-button_font = pygame.font.SysFont(name: "Courier New", size:41)
+        btn_exit = QPushButton("Виключити Программу")
+        btn_exit.clicked.connect(self.close)
 
+        vbox = QVBoxLayout()
+        vbox.addWidget(title)
+        vbox.addWidget(desc)
+        vbox.addSpacing(30)
+        vbox.addWidget(btn_calc)
+        vbox.addWidget(btn_task)
+        vbox.addWidget(btn_guess)
+        vbox.addWidget(btn_exit)
+        vbox.addStretch()
+        self.setLayout(vbox)
 
-title_text = title_font.render(text: "Калькулятор Моделі А412ОМ", antialias True, WHITE)
-desc_text = desc_font.render(text:"Рахуй Числа!" antialias:True, WHITE)
+    def normal_calculator(self):
+        expr, ok = QInputDialog.getText(self, "Звичайний калькулятор", "Введіть вираз:")
+        if ok and expr:
+            try:
+                result = eval(expr, {"__builtins__": None}, {})
+                QMessageBox.information(self, "Результат", f"Результат: {result}")
+            except ZeroDivisionError:
+                QMessageBox.warning(self, "Помилка", "Помилка ділення!")
+            except Exception as e:
+                QMessageBox.warning(self, "Помилка", f"Помилка: {type(e).__name__}")
 
+    def generate_problem(self):
+        a = random.randint(1, 20)
+        b = random.randint(1, 20)
+        op = random.choice(["+", "-", "*", "/"])
+        if op == "/":
+            b = random.randint(1, 20)
+        problem = f"{a} {op} {b}"
+        answer = eval(problem)
+        if isinstance(answer, float):
+            answer = round(answer, 2)
+        return problem, answer
 
-button_text = button_font.render(text:"")
+    def math_trainer(self):
+        problem, correct_answer = self.generate_problem()
+        user_input, ok = QInputDialog.getText(self, "Тренування", f"Розв'яжіть: {problem}")
+        if ok and user_input:
+            try:
+                user_answer = float(user_input)
+                if abs(user_answer - float(correct_answer)) < 0.01:
+                    QMessageBox.information(self, "Результат", "Правильно!")
+                else:
+                    QMessageBox.information(self, "Результат", f"Невірно. Правильна відповідь: {correct_answer}")
+            except Exception:
+                QMessageBox.warning(self, "Помилка", "Вводьте тільки числа!")
 
-first_screen=True
-while first_screen:
-    screen.fill(BLACK)
-
-    screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 150))
-    screen.blit(desc_text, (WIDTH // 2 - desc_text.get_width() // 2, 250));;;
-
-def show_menu():
-    print("\n*** Калькулятор Моделі А412ОМ ***")
-    print("1. Звичайні Обчислення (+-*/)")
-    print("2. Випадкова Задача")
-    print("3. Вгадай Число")
-    print("4. Виключити Программу")
-
-def normal_calculator():
-    print("\n[Звичайний режим] Введіть вираз:")
-
-    try:
-        expr = input(">>> ").strip()
-        result = eval(expr)
-        print(f"Результат: {result}")
-    except ZeroDivisionError:
-        print("Помилка ділення!")
-    except Exception as e:
-        print(f"Помилка: {type(e).__name__}")
-
-def generate_problem():
-    a = random.randint(1, 20)
-    b = random.randint(1, 20)
-    ops = ["+", "-", "*", "/"]
-    op = random.choice(ops)
-
-    #1
-    if op == "/" and b == 0:
-        b = 1 #На всякий случай на костылях
-
-    problem = f"{a} {op} {b}"
-    answer = eval(problem)
-    return problem, round(answer, 2) if isinstance(answer, float) else answer
-
-def math_trainer():
-    print("\n[Тренування] Розв'яжіть завдання:")
-    problem, correct_answer = generate_problem()
-    print(problem)
-
-    try:
-        user_answer = float(input("Ваша Відповідь: "))
-        if abs(user_answer - correct_answer) < 0.01:
-            print("Правильно!")
-        else:
-            print(f"Невірно. Правильна відповідь: {correct_answer}")
-    except:
-        print("Вводите только числа!")
-
-def guess_game():
-    print("\n Я загадав число від 1 до 50. спробуй вгадать!")
-    secret = random.randint(1, 50)
-    attempts = 0
-
-    while True:
-        try:
-            guess = int(input("Твоя догадка: "))
-            attempts += 1 
-
-            if guess < secret:
-                print("Моє число більше!")
-            elif guess > secret:
-                print("Моє число менше!")
-            else:
-                print(f"Победа! Угадав за {attempts} спроб!")
+    def guess_game(self):
+        secret = random.randint(1, 50)
+        attempts = 0
+        while True:
+            guess, ok = QInputDialog.getInt(
+                self, "Вгадай Число", "Я загадав число від 1 до 50. Спробуй вгадати!",
+                min=1, max=50
+            )
+            if not ok:
                 break
-        except:
-            print("Вводи ціли числа!")
-            continue
+            attempts += 1
+            if guess < secret:
+                QMessageBox.information(self, "Підказка", "Моє число більше!")
+            elif guess > secret:
+                QMessageBox.information(self, "Підказка", "Моє число менше!")
+            else:
+                QMessageBox.information(self, "Вітаю!", f"Победа! Угадав за {attempts} спроб!")
+                break
 
-def main():
-    print("Привіт! Це не просто калькулятор.")
-
-    while True:
-        show_menu()
-        choice = input("Вибери Дію (1-4): ")
-
-        if choice == "1":
-            normal_calculator()
-        elif choice == "2":
-            math_trainer()
-        elif choice == "3":
-            guess_game()
-        elif choice == "4":
-            print("До Побачення!")
-            break
-        else:
-            print("Незрозумілий вибір. Спробуй ще раз")
-
-if __name__ == "_main__":
-    main()
-
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = CalculatorApp()
+    window.show()
+    sys.exit(app.exec())
