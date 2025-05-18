@@ -2,11 +2,61 @@ import sys
 import random
 
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QLabel, QPushButton, QVBoxLayout,
-    QInputDialog, QMessageBox
+    QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
+    QInputDialog, QMessageBox, QLineEdit
 )
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
+
+class ButtonCalculator(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Кнопковий калькулятор")
+        self.setFixedSize(350, 400)
+        self.calc_expression = ''
+        self.init_ui()
+
+    def init_ui(self):
+        self.display = QLineEdit()
+        self.display.setReadOnly(True)
+        self.display.setAignment(Qt.AlignmentFlag.AlignRight)
+        self.display.setFont(QFont("Arial", 24))
+
+        buttons = [
+            ['7', '8', '9', '/'],
+            ['4', '5', '6', '*'],
+            ['1', '2', '3', '-'],
+            ['0', '.', '=', '+']
+        ]
+
+        grid_layout = QVBoxLayout()
+        for row in buttons:
+            h_box = QHBoxLayout()
+            for btn_text in row:
+            QPushButton(btn_text)
+                button.setFixedSize(60, 60)
+                button.clicked.connect(self.on_button_click)
+                h_box.addWidget(button)
+            grid_layout.addLayout(h_box)
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.display)
+        main_layout.addLayout(grid_layout)
+        slf.setLayout(main_layout)
+
+    def on_button_click(self):
+        text = self.sender().text()
+        if text == '=':
+            try:
+                result = str(eval(self.calc_expression))
+                self.display.setText(result)
+                self.calc_expression = result
+            except:
+                self.display.setText("Помилка")
+                self.calc_expression = ''
+        else:
+            self.calc_expression += text
+            self.display.setText(self.calc_expression)
 
 class CalculatorApp(QWidget):
     def __init__(self):
@@ -33,6 +83,9 @@ class CalculatorApp(QWidget):
         btn_guess = QPushButton("Вгадай Число")
         btn_guess.clicked.connect(self.guess_game)
 
+        btn_buttons_calc = QPushButton("Калькулятор з кнопками")
+        btn_buttons_calc.clicked.connect(self.open_button_calculator)
+
         btn_exit = QPushButton("Виключити Программу")
         btn_exit.clicked.connect(self.close)
 
@@ -43,11 +96,15 @@ class CalculatorApp(QWidget):
         vbox.addWidget(btn_calc)
         vbox.addWidget(btn_task)
         vbox.addWidget(btn_guess)
+        vbox.addWidget(btn_buttons_calc)
         vbox.addWidget(btn_exit)
         vbox.addStretch()
         self.setLayout(vbox)
 
-    def normal_calculator(self):
+    def open_button_calculator(self):
+        self.button_calc_window = ButtonCalculator()
+        self.button_calc_window.show()
+        def normal_calculator(self):
         expr, ok = QInputDialog.getText(self, "Звичайний калькулятор", "Введіть вираз:")
         if ok and expr:
             try:
