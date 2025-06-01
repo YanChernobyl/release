@@ -19,39 +19,56 @@ class ButtonCalculator(QWidget):
     def init_ui(self):
         self.display = QLineEdit()
         self.display.setReadOnly(True)
-        self.display.setAignment(Qt.AlignmentFlag.AlignRight)
+        self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.display.setFont(QFont("Arial", 24))
 
+        # 4 buttons per row, C is clear
         buttons = [
             ['7', '8', '9', '/'],
             ['4', '5', '6', '*'],
             ['1', '2', '3', '-'],
-            ['0', '.', '=', '+']
+            ['C', '0', '.', '=', '+']  # 5 buttons in last row
         ]
 
         grid_layout = QVBoxLayout()
-        for row in buttons:
+        for i, row in enumerate(buttons):
             h_box = QHBoxLayout()
-            for btn_text in row:
-            QPushButton(btn_text)
-                button.setFixedSize(60, 60)
-                button.clicked.connect(self.on_button_click)
-                h_box.addWidget(button)
-            grid_layout.addLayout(h_box)
+            # For the last row, add each button
+            if i == 3:
+                for btn_text in row:
+                    button = QPushButton(btn_text)
+                    button.setFixedSize(60, 60)
+                    button.clicked.connect(self.on_button_click)
+                    h_box.addWidget(button)
+                grid_layout.addLayout(h_box)
+            else:
+                for btn_text in row:
+                    button = QPushButton(btn_text)
+                    button.setFixedSize(60, 60)
+                    button.clicked.connect(self.on_button_click)
+                    h_box.addWidget(button)
+                grid_layout.addLayout(h_box)
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.display)
         main_layout.addLayout(grid_layout)
-        slf.setLayout(main_layout)
+        self.setLayout(main_layout)
 
     def on_button_click(self):
         text = self.sender().text()
-        if text == '=':
+        if text == 'C':
+            self.calc_expression = ''
+            self.display.setText('')
+        elif text == '=':
             try:
+                # Prevent eval from running empty string
+                if self.calc_expression.strip() == '':
+                    self.display.setText('')
+                    return
                 result = str(eval(self.calc_expression))
                 self.display.setText(result)
                 self.calc_expression = result
-            except:
+            except Exception:
                 self.display.setText("Помилка")
                 self.calc_expression = ''
         else:
@@ -104,7 +121,8 @@ class CalculatorApp(QWidget):
     def open_button_calculator(self):
         self.button_calc_window = ButtonCalculator()
         self.button_calc_window.show()
-        def normal_calculator(self):
+
+    def normal_calculator(self):
         expr, ok = QInputDialog.getText(self, "Звичайний калькулятор", "Введіть вираз:")
         if ok and expr:
             try:
